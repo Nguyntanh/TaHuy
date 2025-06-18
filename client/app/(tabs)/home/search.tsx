@@ -1,9 +1,9 @@
 import { useRouter } from "expo-router";
 import React from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
-function Tasks() {
-  const router = useRouter();
+function Search() {
+    const router = useRouter();
   return (
     <View
       style={{
@@ -23,57 +23,45 @@ function Tasks() {
           gap: 30,
           borderRadius: 20,
         }}>
-        <Image
-          source={require('../../../assets/images/favicon.png')}
-          style={{
-            width: 60,
-            height: 60,
-          }}/>
-        <View
-          style={{
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            marginLeft: -20,
-          }}>
-          <Text
+        <TouchableOpacity
             style={{
-              fontSize: 16,
-              color: 'white',
-            }}>Hello Joshitha</Text>
-          <Text
+                position: 'absolute',
+                left: 35,
+                top: 93,
+                zIndex: 2,
+            }}
+            onPress={() => router.push("/(tabs)/home/tasks")}    
+        >
+            <Image
+                source={require('../../../assets/images/Vector.png')}
+                style={{
+                width: 15,
+                height: 15,
+                }}
+            />
+        </TouchableOpacity>
+        <TextInput
             style={{
-              fontSize: 20,
-              color: 'white',
-              fontWeight: 'bold',
-            }}>Keep Plan For 1 Day</Text>
-        </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            gap: 10,
-          }}>
-          <TouchableOpacity
-            onPress={() => router.push("/(tabs)/home/search")}
-          >
+                width: '90%',
+                height: 40,
+                backgroundColor: '#1a1a2f',
+                paddingLeft: 40,
+                paddingRight: 40,
+                color: '#fff',
+            }}/>
+        <TouchableOpacity
+            style={{
+                marginLeft: -60,
+            }}>
             <Image
-              source={require('../../../assets/images/search.png')}
-              style={{
-                width: 30,
-                height: 30,
-              }}
+            source={require('../../../assets/images/settings.png')}
+            style={{
+                width: 20,
+                height: 20,
+            }}
             />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Image
-              source={require('../../../assets/images/settings.png')}
-              style={{
-                width: 30,
-                height: 30,
-              }}
-            />
-          </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
+        
       </View>
 
       {/* Main content with ScrollView for scrolling */}
@@ -300,7 +288,7 @@ function Tasks() {
             }}>Create New Task</Text>
         </TouchableOpacity>
         <View
-          style={{
+            style={{
             flexDirection: 'row',
             gap: 60,
             backgroundColor: '#242443',
@@ -309,79 +297,79 @@ function Tasks() {
             justifyContent: 'center',
             alignItems: 'center',
             borderRadius: 20,
-          }}>
-          <TouchableOpacity
+            }}>
+            <TouchableOpacity
             style={{
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
             }}>
             <Image
-              source={require('../../../assets/images/menu.png')}
-              style={{
+                source={require('../../../assets/images/menu.png')}
+                style={{
                 width: 30,
                 height: 30,
-              }}/>
+                }}/>
             <Text
-              style={{
+                style={{
                 color: '#fff'
-              }}>Menu</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+                }}>Menu</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
             style={{
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
             }}>
             <Image
-              source={require('../../../assets/images/tasks.png')}
-              style={{
+                source={require('../../../assets/images/tasks.png')}
+                style={{
                 width: 30,
                 height: 30,
-              }}/>
+                }}/>
             <Text
-              style={{
+                style={{
                 color: '#fff'
-              }}>Tasks</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+                }}>Tasks</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
             style={{
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
             }}>
             <Image
-              source={require('../../../assets/images/calendar.png')}
-              style={{
+                source={require('../../../assets/images/calendar.png')}
+                style={{
                 width: 30,
                 height: 30,
-              }}/>
+                }}/>
             <Text
-              style={{
+                style={{
                 color: '#fff'
-              }}>Calendar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+                }}>Calendar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
             style={{
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
             }}>
             <Image
-              source={require('../../../assets/images/mine.png')}
-              style={{
+                source={require('../../../assets/images/mine.png')}
+                style={{
                 width: 30,
                 height: 30,
-              }}/>
+                }}/>
             <Text
-              style={{
+                style={{
                 color: '#fff'
-              }}>Mine</Text>
-          </TouchableOpacity>
+                }}>Mine</Text>
+            </TouchableOpacity>
         </View>
       </View>
     </View>
   );
 }
 
-export default Tasks;
+export default Search;

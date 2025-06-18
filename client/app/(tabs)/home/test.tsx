@@ -2,7 +2,7 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
-function Tasks() {
+function Test() {
   const router = useRouter();
   return (
     <View
@@ -269,6 +269,11 @@ function Tasks() {
         {/* Scroll example */}
       </ScrollView>
 
+      {/* Create New Tasks Screen */}
+      <View>
+
+      </View>
+
       {/* Fixed bottom section */}
       <View
         style={{
@@ -384,4 +389,4 @@ function Tasks() {
   );
 }
 
-export default Tasks;
+export default Test;
