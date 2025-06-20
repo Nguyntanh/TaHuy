@@ -1,6 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
+const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL || "http://localhost:3000";
+
 import {
   Alert,
   Image,
@@ -19,7 +21,6 @@ function Register() {
   const [confirmPassword, setConfirmPassword] = useState(""); // Thêm state cho nhập lại mật khẩu
 
   const handleRegister = async () => {
-    // Kiểm tra hợp lệ
     if (!username || !email || !password || !confirmPassword) {
       Alert.alert("Thông báo", "Vui lòng nhập đầy đủ thông tin");
       return;
@@ -30,14 +31,30 @@ function Register() {
     }
 
     try {
-      const userData = { username, email, password };
-      await AsyncStorage.setItem("user", JSON.stringify(userData));
-      Alert.alert("Thông báo", "Đăng ký thành công", [
-        {
-          text: "OK",
-          onPress: () => router.push("/(tabs)/login-register/login"), // Chuyển hướng sau khi đăng ký
+      const response = await fetch(`${BASE_URL}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      ]);
+        body: JSON.stringify({
+          name: username,
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert("Thông báo", "Đăng ký thành công", [
+          {
+            text: "OK",
+            onPress: () => router.push("/(tabs)/login-register/login"),
+          },
+        ]);
+      } else {
+        Alert.alert("Thông báo", data.message || "Đăng ký thất bại");
+      }
     } catch (error) {
       Alert.alert("Thông báo", "Đăng ký thất bại, vui lòng thử lại sau");
     }

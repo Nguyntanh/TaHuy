@@ -1,6 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
+// Remove the import from @env and define BASE_URL directly or use a fallback
+const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL || "http://localhost:3000";
 import {
     Alert,
     Image,
@@ -23,21 +25,27 @@ function Login() {
     }
 
     try {
-      const storedUser = await AsyncStorage.getItem("user");
-      if (storedUser) {
-        const userData = JSON.parse(storedUser);
-        if (
-          (userData.email === emailOrPhone || userData.username === emailOrPhone) &&
-          userData.password === password
-        ) {
-          Alert.alert("Thông báo", "Đăng nhập thành công", [
-            { text: "OK", onPress: () => router.push("/(tabs)/home/tasks") },
-          ]);
-        } else {
-          Alert.alert("Thông báo", "Email/Số điện thoại hoặc mật khẩu không đúng");
-        }
+      const response = await fetch(`${BASE_URL}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: emailOrPhone,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Lưu token hoặc user info nếu cần
+        // await AsyncStorage.setItem("token", data.token);
+        Alert.alert("Thông báo", "Đăng nhập thành công", [
+          { text: "OK", onPress: () => router.push("/(tabs)/home/tasks") },
+        ]);
       } else {
-        Alert.alert("Thông báo", "Không tìm thấy tài khoản. Vui lòng đăng ký.");
+        Alert.alert("Thông báo", data.message || "Đăng nhập thất bại");
       }
     } catch (error) {
       Alert.alert("Thông báo", "Đăng nhập thất bại, vui lòng thử lại sau");
