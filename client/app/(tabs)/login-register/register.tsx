@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -11,35 +11,71 @@ import {
   View,
 } from "react-native";
 
+// Lấy APP_URL từ expo-constants, mặc định là localhost
+const APP_URL = Constants.expoConfig?.extra?.APP_URL || "http://172.17.161.103:3000";
+
 function Register() {
   const router = useRouter();
-  const [username, setUsername] = useState(""); // Sửa cú pháp useState
+  const [name, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState(""); // Thêm state cho nhập lại mật khẩu
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleRegister = async () => {
     // Kiểm tra hợp lệ
-    if (!username || !email || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword) {
       Alert.alert("Thông báo", "Vui lòng nhập đầy đủ thông tin");
       return;
     }
+
+    // Kiểm tra định dạng email cơ bản
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert("Thông báo", "Email không hợp lệ");
+      return;
+    }
+
     if (password !== confirmPassword) {
       Alert.alert("Thông báo", "Mật khẩu và xác nhận mật khẩu không khớp");
       return;
     }
 
     try {
-      const userData = { username, email, password };
-      await AsyncStorage.setItem("user", JSON.stringify(userData));
-      Alert.alert("Thông báo", "Đăng ký thành công", [
-        {
-          text: "OK",
-          onPress: () => router.push("/(tabs)/login-register/login"), // Chuyển hướng sau khi đăng ký
+      const response = await fetch(`${APP_URL}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      ]);
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await response.json();
+      console.log("Response status:", response.status, "Response data:", data); // Log để debug
+
+      if (response.ok) {
+        Alert.alert("Thông báo", "Đăng ký thành công", [
+          {
+            text: "OK",
+            onPress: () => router.push("/(tabs)/login-register/login"),
+          },
+        ]);
+      } else {
+        const errorMessage =
+          data.message ||
+          (response.status === 400
+            ? "Dữ liệu không hợp lệ"
+            : response.status === 409
+            ? "Email hoặc tên người dùng đã tồn tại"
+            : "Đăng ký thất bại, vui lòng thử lại");
+        Alert.alert("Thông báo", errorMessage);
+      }
     } catch (error) {
-      Alert.alert("Thông báo", "Đăng ký thất bại, vui lòng thử lại sau");
+      if (error instanceof Error) {
+        console.error("Error registering:", error.message, error.stack);
+      } else {
+        console.error("Error registering:", error);
+      }
+      Alert.alert("Thông báo", "Lỗi kết nối server, vui lòng kiểm tra kết nối và thử lại");
     }
   };
 
@@ -66,18 +102,22 @@ function Register() {
           source={require("../../../assets/images/favicon.png")}
           style={{ width: 90, height: 90 }}
         />
-        <Text style={{ fontSize: 35, color: "white" }}>Đăng ký</Text>
+        <Text style={{ fontSize: 35, color: "white", fontWeight: "bold" }}>
+          Đăng ký
+        </Text>
       </View>
       <View style={{ flexDirection: "column", width: "80%", gap: 10 }}>
         <TextInput
           style={styles.input}
           placeholder="Họ và Tên"
-          value={username}
+          placeholderTextColor="#999"
+          value={name}
           onChangeText={setUsername}
         />
         <TextInput
           style={styles.input}
           placeholder="Email"
+          placeholderTextColor="#999"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -85,6 +125,7 @@ function Register() {
         <TextInput
           style={styles.input}
           placeholder="Mật khẩu"
+          placeholderTextColor="#999"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -92,6 +133,7 @@ function Register() {
         <TextInput
           style={styles.input}
           placeholder="Nhập lại mật khẩu"
+          placeholderTextColor="#999"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secureTextEntry
@@ -106,18 +148,17 @@ function Register() {
           alignItems: "center",
         }}
       >
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleRegister} // Gọi hàm đăng ký
-        >
-          <Text>Đăng ký</Text>
+        <TouchableOpacity style={styles.button} onPress={handleRegister}>
+          <Text style={styles.buttonText}>Đăng ký</Text>
         </TouchableOpacity>
-        <View style={{ flexDirection: "row" }}>
-          <Text style={{ color: "#fff" }}>Đã có tài khoản: </Text>
+        <View style={{ flexDirection: "row", gap: 5 }}>
+          <Text style={{ color: "#fff" }}>Đã có tài khoản? </Text>
           <TouchableOpacity
             onPress={() => router.push("/(tabs)/login-register/login")}
           >
-            <Text style={{ color: "#fff" }}>Đăng nhập</Text>
+            <Text style={{ color: "#1E90FF", fontWeight: "bold" }}>
+              Đăng nhập
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -155,14 +196,20 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 20,
     marginBottom: 15,
+    fontSize: 16,
   },
   button: {
-    backgroundColor: "#fff",
+    backgroundColor: "#1E90FF",
     justifyContent: "center",
     alignItems: "center",
-    width: 100,
-    height: 40,
+    width: 120,
+    height: 45,
     borderRadius: 5,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

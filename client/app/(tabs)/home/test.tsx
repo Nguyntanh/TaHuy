@@ -1,392 +1,216 @@
+import Constants from "expo-constants";
 import { useRouter } from "expo-router";
-import React from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import {
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+// Lấy APP_URL từ expo-constants, mặc định là localhost
+const APP_URL = Constants.expoConfig?.extra?.APP_URL || "http://172.17.161.103:3000";
 
 function Test() {
   const router = useRouter();
+  const [name, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const handleRegister = async () => {
+    // Kiểm tra hợp lệ
+    if (!name || !email || !password || !confirmPassword) {
+      Alert.alert("Thông báo", "Vui lòng nhập đầy đủ thông tin");
+      return;
+    }
+
+    // Kiểm tra định dạng email cơ bản
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert("Thông báo", "Email không hợp lệ");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert("Thông báo", "Mật khẩu và xác nhận mật khẩu không khớp");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${APP_URL}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await response.json();
+      console.log("Response status:", response.status, "Response data:", data); // Log để debug
+
+      if (response.ok) {
+        Alert.alert("Thông báo", "Đăng ký thành công", [
+          {
+            text: "OK",
+            onPress: () => router.push("/(tabs)/login-register/login"),
+          },
+        ]);
+      } else {
+        const errorMessage =
+          data.message ||
+          (response.status === 400
+            ? "Dữ liệu không hợp lệ"
+            : response.status === 409
+            ? "Email hoặc tên người dùng đã tồn tại"
+            : "Đăng ký thất bại, vui lòng thử lại");
+        Alert.alert("Thông báo", errorMessage);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Error registering:", error.message, error.stack);
+      } else {
+        console.error("Error registering:", error);
+      }
+      Alert.alert("Thông báo", "Lỗi kết nối server, vui lòng kiểm tra kết nối và thử lại");
+    }
+  };
+
   return (
     <View
       style={{
         flex: 1,
-        backgroundColor: "#1a1a2f",
-      }}>
-      {/* Fixed top header */}
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#1A1A2F",
+        gap: 50,
+      }}
+    >
       <View
         style={{
-          flexDirection: 'row',
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: '#242443',
-          height: 150,
-          paddingBottom: 20,
-          paddingTop: 70,
-          gap: 30,
-          borderRadius: 20,
-        }}>
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 60,
+          marginRight: 30,
+          marginTop: -50,
+        }}
+      >
         <Image
-          source={require('../../../assets/images/favicon.png')}
-          style={{
-            width: 60,
-            height: 60,
-          }}/>
-        <View
-          style={{
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            marginLeft: -20,
-          }}>
-          <Text
-            style={{
-              fontSize: 16,
-              color: 'white',
-            }}>Hello Joshitha</Text>
-          <Text
-            style={{
-              fontSize: 20,
-              color: 'white',
-              fontWeight: 'bold',
-            }}>Keep Plan For 1 Day</Text>
-        </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            gap: 10,
-          }}>
-          <TouchableOpacity
-            onPress={() => router.push("/(tabs)/home/search")}
-          >
-            <Image
-              source={require('../../../assets/images/search.png')}
-              style={{
-                width: 30,
-                height: 30,
-              }}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Image
-              source={require('../../../assets/images/settings.png')}
-              style={{
-                width: 30,
-                height: 30,
-              }}
-            />
-          </TouchableOpacity>
-        </View>
+          source={require("../../../assets/images/favicon.png")}
+          style={{ width: 90, height: 90 }}
+        />
+        <Text style={{ fontSize: 35, color: "white", fontWeight: "bold" }}>
+          Đăng ký
+        </Text>
       </View>
-
-      {/* Main content with ScrollView for scrolling */}
-      <ScrollView
-        style={{ marginTop: 50 }} // Only apply styles like margin to the ScrollView itself
-        contentContainerStyle={{
-          alignItems: 'center',
-          flexDirection: 'column',
-          gap: 30,
-        }}>
-        <View
-          style={{
-            backgroundColor: '#242443',
-            width: '90%',
-            height: 50,
-            borderRadius: 15,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexDirection: 'row',
-            paddingLeft: 20,
-            paddingRight: 20,
-          }}>
-          <Text
-            style={{
-              color: '#fff'
-            }}>Previous Tasks</Text>
-          <TouchableOpacity><Text style={{color: '#fff'}}>a</Text></TouchableOpacity>
-        </View>
-        <View
-          style={{
-            backgroundColor: '#242443',
-            width: '90%',
-            height: 50,
-            borderRadius: 15,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexDirection: 'row',
-            paddingLeft: 20,
-            paddingRight: 20,
-          }}>
-          <Text
-            style={{
-              color: '#fff'
-            }}>Today Tasks</Text>
-          <TouchableOpacity><Text style={{color: '#fff'}}>a</Text></TouchableOpacity>
-        </View>
-        <View
-          style={{
-            backgroundColor: '#242443',
-            width: '90%',
-            height: 50,
-            borderRadius: 15,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexDirection: 'row',
-            paddingLeft: 20,
-            paddingRight: 20,
-          }}>
-          <Text
-            style={{
-              color: '#fff'
-            }}>Categories</Text>
-          <TouchableOpacity><Text style={{color: '#fff'}}>a</Text></TouchableOpacity>
-        </View>
-        <View
-          style={{
-            backgroundColor: '#242443',
-            width: '90%',
-            height: 50,
-            borderRadius: 15,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexDirection: 'row',
-            paddingLeft: 20,
-            paddingRight: 20,
-          }}>
-          <Text
-            style={{
-              color: '#fff'
-            }}>Completed Tasks</Text>
-          <TouchableOpacity><Text style={{color: '#fff'}}>a</Text></TouchableOpacity>
-        </View>
-
-        {/* Scroll example */}
-        <View
-          style={{
-            backgroundColor: '#242443',
-            width: '90%',
-            height: 50,
-            borderRadius: 15,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexDirection: 'row',
-            paddingLeft: 20,
-            paddingRight: 20,
-          }}>
-          <Text
-            style={{
-              color: '#fff'
-            }}>Completed Tasks</Text>
-          <TouchableOpacity><Text style={{color: '#fff'}}>a</Text></TouchableOpacity>
-        </View>
-        <View
-          style={{
-            backgroundColor: '#242443',
-            width: '90%',
-            height: 50,
-            borderRadius: 15,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexDirection: 'row',
-            paddingLeft: 20,
-            paddingRight: 20,
-          }}>
-          <Text
-            style={{
-              color: '#fff'
-            }}>Completed Tasks</Text>
-          <TouchableOpacity><Text style={{color: '#fff'}}>a</Text></TouchableOpacity>
-        </View>
-        <View
-          style={{
-            backgroundColor: '#242443',
-            width: '90%',
-            height: 50,
-            borderRadius: 15,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexDirection: 'row',
-            paddingLeft: 20,
-            paddingRight: 20,
-          }}>
-          <Text
-            style={{
-              color: '#fff'
-            }}>Completed Tasks</Text>
-          <TouchableOpacity><Text style={{color: '#fff'}}>a</Text></TouchableOpacity>
-        </View>
-        <View
-          style={{
-            backgroundColor: '#242443',
-            width: '90%',
-            height: 50,
-            borderRadius: 15,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexDirection: 'row',
-            paddingLeft: 20,
-            paddingRight: 20,
-          }}>
-          <Text
-            style={{
-              color: '#fff'
-            }}>Completed Tasks</Text>
-          <TouchableOpacity><Text style={{color: '#fff'}}>a</Text></TouchableOpacity>
-        </View>
-        <View
-          style={{
-            backgroundColor: '#242443',
-            width: '90%',
-            height: 50,
-            borderRadius: 15,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexDirection: 'row',
-            paddingLeft: 20,
-            paddingRight: 20,
-          }}>
-          <Text
-            style={{
-              color: '#fff'
-            }}>Completed Tasks</Text>
-          <TouchableOpacity><Text style={{color: '#fff'}}>a</Text></TouchableOpacity>
-        </View>
-        <View
-          style={{
-            backgroundColor: '#242443',
-            width: '90%',
-            height: 50,
-            borderRadius: 15,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexDirection: 'row',
-            paddingLeft: 20,
-            paddingRight: 20,
-          }}>
-          <Text
-            style={{
-              color: '#fff'
-            }}>Completed Tasks</Text>
-          <TouchableOpacity><Text style={{color: '#fff'}}>a</Text></TouchableOpacity>
-        </View>
-        {/* Scroll example */}
-      </ScrollView>
-
-      {/* Create New Tasks Screen */}
-      <View>
-
+      <View style={{ flexDirection: "column", width: "80%", gap: 10 }}>
+        <TextInput
+          style={styles.input}
+          placeholder="Họ và Tên"
+          placeholderTextColor="#999"
+          value={name}
+          onChangeText={setUsername}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          placeholderTextColor="#999"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Mật khẩu"
+          placeholderTextColor="#999"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Nhập lại mật khẩu"
+          placeholderTextColor="#999"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry
+        />
       </View>
-
-      {/* Fixed bottom section */}
       <View
         style={{
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: 20,
-          marginBottom: 100,
-        }}>
-        <TouchableOpacity
-          style={{
-            backgroundColor: '#1a12ff',
-            width: '90%',
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: 10,
-            height: 50,
-            gap: 10,
-          }}>
-          <Image
-            source={require('../../../assets/images/createNewTask.png')}
-            style={{
-              width: 20,
-              height: 20,
-            }}/>
-          <Text
-            style={{
-              color: '#fff',
-            }}>Create New Task</Text>
+          flexDirection: "column",
+          marginTop: -20,
+          gap: 10,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <TouchableOpacity style={styles.button} onPress={handleRegister}>
+          <Text style={styles.buttonText}>Đăng ký</Text>
         </TouchableOpacity>
-        <View
-          style={{
-            flexDirection: 'row',
-            gap: 60,
-            backgroundColor: '#242443',
-            height: 80,
-            width: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: 20,
-          }}>
+        <View style={{ flexDirection: "row", gap: 5 }}>
+          <Text style={{ color: "#fff" }}>Đã có tài khoản? </Text>
           <TouchableOpacity
-            style={{
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Image
-              source={require('../../../assets/images/menu.png')}
-              style={{
-                width: 30,
-                height: 30,
-              }}/>
-            <Text
-              style={{
-                color: '#fff'
-              }}>Menu</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Image
-              source={require('../../../assets/images/tasks.png')}
-              style={{
-                width: 30,
-                height: 30,
-              }}/>
-            <Text
-              style={{
-                color: '#fff'
-              }}>Tasks</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Image
-              source={require('../../../assets/images/calendar.png')}
-              style={{
-                width: 30,
-                height: 30,
-              }}/>
-            <Text
-              style={{
-                color: '#fff'
-              }}>Calendar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Image
-              source={require('../../../assets/images/mine.png')}
-              style={{
-                width: 30,
-                height: 30,
-              }}/>
-            <Text
-              style={{
-                color: '#fff'
-              }}>Mine</Text>
+            onPress={() => router.push("/(tabs)/login-register/login")}
+          >
+            <Text style={{ color: "#1E90FF", fontWeight: "bold" }}>
+              Đăng nhập
+            </Text>
           </TouchableOpacity>
         </View>
+      </View>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 20,
+          marginTop: -30,
+        }}
+      >
+        <Text style={{ color: "#fff" }}>Tiếp tục với: </Text>
+        <TouchableOpacity>
+          <Image
+            source={require("../../../assets/images/favicon.png")}
+            style={{ width: 50, height: 50 }}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Image
+            source={require("../../../assets/images/favicon.png")}
+            style={{ width: 50, height: 50 }}
+          />
+        </TouchableOpacity>
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  input: {
+    backgroundColor: "#fff",
+    height: 45,
+    borderRadius: 5,
+    paddingHorizontal: 20,
+    marginBottom: 15,
+    fontSize: 16,
+  },
+  button: {
+    backgroundColor: "#1E90FF",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 120,
+    height: 45,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+});
 
 export default Test;
