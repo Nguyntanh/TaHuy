@@ -11,9 +11,6 @@ import {
   View,
 } from "react-native";
 
-// Lấy APP_URL từ expo-constants, mặc định là localhost
-const APP_URL = Constants.expoConfig?.extra?.APP_URL || "http://172.17.161.103:3000";
-
 function Register() {
   const router = useRouter();
   const [name, setUsername] = useState("");
@@ -41,7 +38,15 @@ function Register() {
     }
 
     try {
-      const response = await fetch(`${APP_URL}/api/auth/register`, {
+      const appUrl = Constants.expoConfig?.extra?.APP_URL;
+      console.log("APP_URL:", appUrl); // Debug log
+
+      if (!appUrl) {
+        Alert.alert("Lỗi", "URL API không được định nghĩa. Vui lòng kiểm tra cấu hình.");
+        return;
+      }
+
+      const response = await fetch(`${appUrl}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,7 +55,7 @@ function Register() {
       });
 
       const data = await response.json();
-      console.log("Response status:", response.status, "Response data:", data); // Log để debug
+      console.log("Response status:", response.status, "Response data:", data);
 
       if (response.ok) {
         Alert.alert("Thông báo", "Đăng ký thành công", [
@@ -70,12 +75,16 @@ function Register() {
         Alert.alert("Thông báo", errorMessage);
       }
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof SyntaxError) {
+        console.error("Error parsing JSON:", error.message);
+        Alert.alert("Lỗi", "Phản hồi từ server không phải là JSON hợp lệ. Vui lòng kiểm tra server.");
+      } else if (error instanceof Error) {
         console.error("Error registering:", error.message, error.stack);
+        Alert.alert("Thông báo", "Lỗi kết nối server, vui lòng kiểm tra kết nối và thử lại");
       } else {
         console.error("Error registering:", error);
+        Alert.alert("Thông báo", "Lỗi không xác định, vui lòng thử lại");
       }
-      Alert.alert("Thông báo", "Lỗi kết nối server, vui lòng kiểm tra kết nối và thử lại");
     }
   };
 

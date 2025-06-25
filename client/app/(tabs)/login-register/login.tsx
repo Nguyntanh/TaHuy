@@ -12,7 +12,7 @@ import {
 } from "react-native";
 
 // Lấy APP_URL từ expo-constants, mặc định là localhost
-const APP_URL = Constants.expoConfig?.extra?.APP_URL || "http://172.17.161.103:3000";
+const APP_URL = Constants.expoConfig?.extra?.APP_URL;
 
 function Login() {
   const router = useRouter();

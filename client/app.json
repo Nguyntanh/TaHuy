@@ -9,6 +9,9 @@
     "scheme": "client",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "extra": {
+      "APP_URL": "${EXPO_PUBLIC_APP_URL}"
+    },
     "ios": {
       "supportsTablet": true
     },
