@@ -13,6 +13,8 @@ import {
 
 // Lấy APP_URL từ expo-constants, mặc định là localhost
 const APP_URL = Constants.expoConfig?.extra?.APP_URL;
+console.log('APP_URL:', Constants.expoConfig?.extra?.APP_URL);
+console.log('EXPO_PUBLIC_APP_URL:', process.env.EXPO_PUBLIC_APP_URL);
 
 function Login() {
   const router = useRouter();
